@@ -3,6 +3,7 @@ import { useQuery } from '@apollo/react-hooks';
 import { UPDATE_CATEGORIES, UPDATE_CURRENT_CATEGORY } from '../../utils/actions'; 
 import { QUERY_CATEGORIES } from "../../utils/queries";
 import { useStoreContext } from '../../utils/GlobalState';
+import { idbPromise } from '../../utils/helpers';
 
 function CategoryMenu() {
 
@@ -10,7 +11,7 @@ function CategoryMenu() {
   const [state, dispatch ] = useStoreContext();
   // only using categories here, so this is all we grab
   const { categories } = state;
-  const { data: categoryData } = useQuery(QUERY_CATEGORIES);
+  const { loading, data: categoryData } = useQuery(QUERY_CATEGORIES);
   
   useEffect(() => {
     // if categoryData exists or has changed from the response of useQuery, then run dispatch()
@@ -20,8 +21,18 @@ function CategoryMenu() {
         type: UPDATE_CATEGORIES,
         categories: categoryData.categories
       });
+      categoryData.categories.forEach(category => {
+        idbPromise('categories', 'put', category);
+      });
+    } else if (!loading) {
+      idbPromise('categories', 'get').then(categories => {
+        dispatch({
+          type: UPDATE_CATEGORIES,
+          categories: categories
+        });
+      });
     }
-  }, [categoryData, dispatch]);
+  }, [categoryData, loading, dispatch]);
 
   // upon retrieval of category from server, save category to global state object and use that data to print the list of categories to page
   const handleClick = id => {

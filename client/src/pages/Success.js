@@ -12,7 +12,7 @@ function Success() {
     useEffect(() => {
         async function saveOrder() {
             const cart = await idbPromise('cart', 'get');
-            const products = cart.map(product => product._ids);
+            const products = cart.map(product => product._id);
             console.log('UUUUUUUUUUUUUUU', products);
 
             if (products.length) {
@@ -24,9 +24,9 @@ function Success() {
                     console.log(item);
                 });
 
-                // setTimeout(function() {
-                //     window.location.assign('/')
-                // }, 30000);
+                setTimeout(function() {
+                    window.location.assign('/')
+                }, 3000);
             }
         }
         saveOrder();
